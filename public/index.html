@@ -25,7 +25,7 @@
         }
 
         #imgWrap img.zoomed {
-            transform: scale(2);
+            transform: scale(2.5);
             z-index: 9999
         }
     </style>
@@ -51,6 +51,7 @@
         async function fetchImages(page, limit) {
             const response = await fetch(`/api/images?page=${page}&limit=${limit}`);
             const images = await response.json();
+            // return images.map((image) => `/thumbnails/${image}`);
             return images.map((image) => `/images/${image}`);
         }
 
@@ -72,27 +73,37 @@
 
         document.addEventListener('DOMContentLoaded', async function () {
 
+            // document.getElementById('imgWrap').addEventListener('click', function (e) {
+            //     const tgt = e.target;
+            //     tgt.classList.toggle('zoomed')
+            // });
+
+
             document.getElementById('imgWrap').addEventListener('click', function (e) {
                 const tgt = e.target;
+                if (!tgt.classList.contains('zoomed')) {
+                    tgt.src = tgt.getAttribute('data-src'); // set the original image URL as src when zooming in
+                } else {
+                    tgt.src = `/thumbnails/${tgt.getAttribute('data-src').split('/').pop()}`; // set the thumbnail URL as src when zooming out
+                }
                 tgt.classList.toggle('zoomed')
-            });
-
-
-            var imgArr = await fetchImages(page, limit);
+            })
 
             var imgWrap = document.getElementById('imgWrap');
             var imgColumn = imgWrap.getElementsByClassName('imgColumn');
 
-            for (let i = 0; i < imgArr.length; i++) {
-                var imgColumnItem = document.createElement('img');
-                imgColumnItem.setAttribute('class', 'imgColumn');
-                imgColumnItem.src = imgArr[i];
-                imgColumnItem.addEventListener('load', (event) => {
-                    handleImageLoad(event, i, imgArr.length);
-                });
+            // var imgArr = await fetchImages(page, limit);
+            // for (let i = 0; i < imgArr.length; i++) {
+            //     var imgColumnItem = document.createElement('img');
+            //     imgColumnItem.setAttribute('class', 'imgColumn');
+            //     imgColumnItem.src = imgArr[i];
+            //     imgColumnItem.addEventListener('load', (event) => {
+            //         handleImageLoad(event, i, imgArr.length);
+            //     });
 
-                imgWrap.appendChild(imgColumnItem);
-            }
+            //     imgWrap.appendChild(imgColumnItem);
+            // }
+            await loadMoreImages();
 
             window.onscroll = async function () {
                 var windowH = document.documentElement.clientHeight || document.body.clientHeight;
@@ -120,7 +131,9 @@
             for (let i = 0; i < newImages.length; i++) {
                 var imgColumnItem = document.createElement('img');
                 imgColumnItem.setAttribute('class', 'imgColumn');
-                imgColumnItem.src = newImages[i];
+
+                imgColumnItem.setAttribute('data-src', newImages[i]); // store the original image URL
+                imgColumnItem.src = `/thumbnails/${newImages[i].split('/').pop()}`;
                 imgColumnItem.addEventListener('load', (event) => {
                     handleImageLoad(event, i, newImages.length);
                 });

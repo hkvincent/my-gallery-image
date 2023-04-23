@@ -4,6 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const fs = require('fs');
+const sharp = require('sharp');
+
 
 
 var indexRouter = require('./routes/index');
@@ -47,6 +49,32 @@ app.get('/api/images', (req, res) => {
   console.log(paginatedImages)
   res.json(paginatedImages);
 });
+
+const imagesFolder = path.join(__dirname, 'public', 'images');
+
+app.get('/thumbnails/:filename', async (req, res) => {
+  const filename = req.params.filename;
+  const imagePath = path.join(imagesFolder, filename);
+
+  try {
+    const thumbnailPath = path.join(imagesFolder, 'thumbnails', filename);
+    
+    if (!fs.existsSync(path.dirname(thumbnailPath))) {
+      fs.mkdirSync(path.dirname(thumbnailPath), { recursive: true });
+    }
+    
+    await sharp(imagePath)
+      .resize({ width: 300 })
+      .toFile(thumbnailPath);
+
+    res.sendFile(thumbnailPath);
+  } catch (error) {
+    console.error('Error resizing image:', error);
+    res.status(500).send('Error resizing image');
+  }
+});
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
