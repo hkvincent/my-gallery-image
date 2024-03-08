@@ -6,8 +6,6 @@ var logger = require('morgan');
 const fs = require('fs');
 const sharp = require('sharp');
 
-
-
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 

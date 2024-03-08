@@ -133,7 +133,7 @@
                 imgColumnItem.setAttribute('class', 'imgColumn');
 
                 imgColumnItem.setAttribute('data-src', newImages[i]); // store the original image URL
-                imgColumnItem.src = `/thumbnails/${newImages[i].split('/').pop()}`;
+                imgColumnItem.src = newImages[i];
                 imgColumnItem.addEventListener('load', (event) => {
                     handleImageLoad(event, i, newImages.length);
                 });
@@ -176,8 +176,7 @@
                 }
             }
         }
-    </script
-      
+    </script>
 </body>
 
 </html>
